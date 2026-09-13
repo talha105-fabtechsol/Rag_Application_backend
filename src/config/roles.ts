@@ -1,7 +1,14 @@
 const allRoles = {
+  superadmin: [
+    "getUsers",
+    "manageUsers",
+    "adminAccess",
+  ],
+
   admin: [
     "getUsers",
     "manageUsers",
+    "adminAccess",
     // Booking management"
   ],
 

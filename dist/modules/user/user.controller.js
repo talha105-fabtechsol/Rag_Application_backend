@@ -45,7 +45,7 @@ const pick_1 = __importDefault(require("../utils/pick"));
 const userService = __importStar(require("./user.service"));
 exports.createUser = (0, catchAsync_1.default)(async (req, res) => {
     let ownerId;
-    if (req.user.role !== "admin") {
+    if (req.user.role !== "admin" && req.user.role !== "superadmin") {
         ownerId = req.user._id;
     }
     else {
@@ -62,7 +62,7 @@ exports.createUser = (0, catchAsync_1.default)(async (req, res) => {
 });
 exports.getUsers = (0, catchAsync_1.default)(async (req, res) => {
     // Authorization logic
-    if (req.user && req.user.role === 'admin') {
+    if (req.user && (req.user.role === 'admin' || req.user.role === 'superadmin')) {
         // Admin can see users they created
     }
     else if (req.user && req.user.role === 'sub-admin') {
@@ -79,7 +79,7 @@ exports.getUsers = (0, catchAsync_1.default)(async (req, res) => {
 exports.getAllUsers = (0, catchAsync_1.default)(async (req, res) => {
     const { page, limit, role, search } = req.query;
     // Authorization logic
-    if (req.user && req.user.role === 'admin') {
+    if (req.user && (req.user.role === 'admin' || req.user.role === 'superadmin')) {
         // Admin can see users they created
     }
     else if (req.user && req.user.role === 'sub-admin') {

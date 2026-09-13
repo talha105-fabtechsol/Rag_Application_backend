@@ -10,7 +10,7 @@ import * as userService from './user.service';
 export const createUser = catchAsync(async (req: Request, res: Response) => {
   let ownerId: mongoose.Types.ObjectId;
   
-  if (req.user.role !== "admin") {
+  if (req.user.role !== "admin" && req.user.role !== "superadmin") {
     ownerId = req.user._id;
   } else {
     // For admin users, they might pass ownerId in the request body or use their own ID
@@ -30,7 +30,7 @@ export const createUser = catchAsync(async (req: Request, res: Response) => {
 
 export const getUsers = catchAsync(async (req: Request, res: Response) => {
   // Authorization logic
-  if (req.user && req.user.role === 'admin') {
+  if (req.user && (req.user.role === 'admin' || req.user.role === 'superadmin')) {
     // Admin can see users they created
   } else if (req.user && req.user.role === 'sub-admin') {
     // Sub-admin can see users created by their admin
@@ -48,7 +48,7 @@ export const getUsers = catchAsync(async (req: Request, res: Response) => {
   const { page, limit, role, search } = req.query;
   
   // Authorization logic
-  if (req.user && req.user.role === 'admin') {
+  if (req.user && (req.user.role === 'admin' || req.user.role === 'superadmin')) {
     // Admin can see users they created
   } else if (req.user && req.user.role === 'sub-admin') {
     // Sub-admin can see users created by their admin

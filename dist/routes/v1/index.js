@@ -8,6 +8,7 @@ const auth_route_1 = __importDefault(require("./auth.route"));
 const user_route_1 = __importDefault(require("./user.route"));
 const rag_route_1 = __importDefault(require("./rag.route"));
 const image_route_1 = __importDefault(require("./image.route"));
+const admin_route_1 = __importDefault(require("./admin.route"));
 const router = express_1.default.Router();
 const defaultIRoute = [
     {
@@ -25,6 +26,10 @@ const defaultIRoute = [
     {
         path: "/image",
         route: image_route_1.default,
+    },
+    {
+        path: "/admin",
+        route: admin_route_1.default,
     },
 ];
 // Globally Routes

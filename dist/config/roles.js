@@ -2,9 +2,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.roleRights = exports.roles = void 0;
 const allRoles = {
+    superadmin: [
+        "getUsers",
+        "manageUsers",
+        "adminAccess",
+    ],
     admin: [
         "getUsers",
         "manageUsers",
+        "adminAccess",
         // Booking management"
     ],
     customer: [

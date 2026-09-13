@@ -3,6 +3,7 @@ import authRoute from "./auth.route";
 import userRoute from "./user.route";
 import ragRoute from "./rag.route";
 import imageRoute from "./image.route";
+import adminRoute from "./admin.route";
 
 const router = express.Router();
 interface IRoute {
@@ -26,6 +27,10 @@ const defaultIRoute: IRoute[] = [
   {
     path: "/image",
     route: imageRoute,
+  },
+  {
+    path: "/admin",
+    route: adminRoute,
   },
 ];
 
