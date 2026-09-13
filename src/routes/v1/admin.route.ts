@@ -1,6 +1,7 @@
 import express, { Router } from "express";
 import { auth } from "../../modules/auth";
 import { adminController } from "../../modules/admin";
+import { blogController } from "../../modules/blog";
 
 const router: Router = express.Router();
 
@@ -27,6 +28,13 @@ router.get("/chats/:chatId", adminController.getChat);
 // ── Images Management ──
 router.get("/images", adminController.getImages);
 router.delete("/images/:imageId", adminController.deleteImage);
+
+// ── Blogs Management ──
+router.get("/blogs", blogController.getAdminBlogs);
+router.get("/blogs/:blogId", blogController.getAdminBlog);
+router.post("/blogs", blogController.createBlog);
+router.patch("/blogs/:blogId", blogController.updateBlog);
+router.delete("/blogs/:blogId", blogController.deleteBlog);
 
 export default router;
 
