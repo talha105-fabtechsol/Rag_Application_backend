@@ -3,6 +3,7 @@ import User from "../user/user.model";
 import RagDocument from "../rag/rag.document.model";
 import RagChat from "../rag/rag.chat.model";
 import RagChunk from "../rag/rag.chunk.model";
+import RagImage from "../rag/rag.image.model";
 import ApiError from "../errors/ApiError";
 import httpStatus from "http-status";
 import {
@@ -10,6 +11,7 @@ import {
   IAdminUserFilter,
   IAdminDocumentFilter,
   IAdminChatFilter,
+  IAdminImageFilter,
 } from "./admin.interfaces";
 
 /**
@@ -24,6 +26,7 @@ export const getAdminStats = async (): Promise<IAdminStats> => {
     totalUsers,
     totalDocuments,
     totalChats,
+    totalImages,
     newUsersToday,
     newUsersThisWeek,
     messagesAgg,
@@ -34,6 +37,7 @@ export const getAdminStats = async (): Promise<IAdminStats> => {
     User.countDocuments({ isDeleted: false }),
     RagDocument.countDocuments(),
     RagChat.countDocuments(),
+    RagImage.countDocuments(),
     User.countDocuments({ isDeleted: false, createdAt: { $gte: startOfToday } }),
     User.countDocuments({ isDeleted: false, createdAt: { $gte: startOfWeek } }),
     RagChat.aggregate([
@@ -64,6 +68,7 @@ export const getAdminStats = async (): Promise<IAdminStats> => {
     totalDocuments,
     totalChats,
     totalMessages,
+    totalImages,
     newUsersToday,
     newUsersThisWeek,
     recentUsers,
@@ -173,18 +178,20 @@ export const getUserDetails = async (userId: string) => {
     throw new ApiError("User not found", httpStatus.NOT_FOUND);
   }
 
-  const [documents, chats] = await Promise.all([
+  const [documents, chats, images] = await Promise.all([
     RagDocument.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
     RagChat.find({ userId: user._id })
       .populate("documentId", "fileName")
       .sort({ updatedAt: -1 })
       .lean(),
+    RagImage.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
   ]);
 
   return {
     user,
     documents,
     chats,
+    images,
   };
 };
 
@@ -409,4 +416,73 @@ export const getChatDetails = async (chatId: string) => {
 
   return { chat };
 };
+
+/**
+ * Get all user generated images with pagination and search across all users
+ */
+export const getAllImages = async (filter: IAdminImageFilter) => {
+  const page = Math.max(1, Number(filter.page) || 1);
+  const limit = Math.max(1, Math.min(100, Number(filter.limit) || 12));
+  const skip = (page - 1) * limit;
+
+  const matchQuery: any = {};
+
+  if (filter.userId && mongoose.Types.ObjectId.isValid(filter.userId)) {
+    matchQuery.userId = new mongoose.Types.ObjectId(filter.userId);
+  }
+
+  if (filter.search && filter.search.trim()) {
+    matchQuery.prompt = new RegExp(filter.search.trim(), "i");
+  }
+
+  const [images, totalCount] = await Promise.all([
+    RagImage.find(matchQuery, { promptEmbedding: 0 })
+      .populate("userId", "name email role")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    RagImage.countDocuments(matchQuery),
+  ]);
+
+  return {
+    images,
+    pagination: {
+      currentPage: page,
+      pageSize: limit,
+      totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+      hasNextPage: page * limit < totalCount,
+      hasPreviousPage: page > 1,
+    },
+  };
+};
+
+/**
+ * Admin delete generated image from Cloudinary and database
+ */
+export const deleteImageAdmin = async (imageId: string) => {
+  if (!mongoose.Types.ObjectId.isValid(imageId)) {
+    throw new ApiError("Invalid image ID", httpStatus.BAD_REQUEST);
+  }
+
+  const image = await RagImage.findById(imageId);
+  if (!image) {
+    throw new ApiError("Image not found", httpStatus.NOT_FOUND);
+  }
+
+  // Delete from Cloudinary if URL exists
+  if (image.cloudinaryUrl) {
+    try {
+      const { deleteImageByUrl } = await import("../utils/cloudinary");
+      await deleteImageByUrl(image.cloudinaryUrl);
+    } catch {
+      // Continue to delete from DB if Cloudinary deletion errors
+    }
+  }
+
+  await RagImage.findByIdAndDelete(imageId);
+  return { success: true };
+};
+
 

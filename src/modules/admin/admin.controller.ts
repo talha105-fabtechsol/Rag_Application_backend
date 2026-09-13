@@ -105,3 +105,24 @@ export const getChat = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+export const getImages = catchAsync(async (req: Request, res: Response) => {
+  const { page, limit, search, userId, sortBy } = req.query;
+  const result = await adminService.getAllImages({
+    page: page ? Number(page) : 1,
+    limit: limit ? Number(limit) : 12,
+    search: search as string,
+    userId: userId as string,
+    sortBy: sortBy as string,
+  });
+
+  res.status(httpStatus.OK).send({
+    status: "success",
+    data: result,
+  });
+});
+
+export const deleteImage = catchAsync(async (req: Request, res: Response) => {
+  await adminService.deleteImageAdmin(req.params["imageId"] as string);
+  res.status(httpStatus.NO_CONTENT).send();
+});
+

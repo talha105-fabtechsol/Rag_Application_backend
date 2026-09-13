@@ -3,6 +3,7 @@ export interface IAdminStats {
   totalDocuments: number;
   totalChats: number;
   totalMessages: number;
+  totalImages: number;
   newUsersToday: number;
   newUsersThisWeek: number;
   recentUsers: any[];
@@ -34,6 +35,14 @@ export interface IAdminChatFilter {
   limit?: number;
   search?: string;
   chatType?: string;
+  userId?: string;
+  sortBy?: string;
+}
+
+export interface IAdminImageFilter {
+  page?: number;
+  limit?: number;
+  search?: string;
   userId?: string;
   sortBy?: string;
 }

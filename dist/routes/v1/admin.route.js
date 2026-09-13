@@ -22,4 +22,7 @@ router.delete("/documents/:documentId", admin_1.adminController.deleteDocument);
 // ── Chats Management ──
 router.get("/chats", admin_1.adminController.getChats);
 router.get("/chats/:chatId", admin_1.adminController.getChat);
+// ── Images Management ──
+router.get("/images", admin_1.adminController.getImages);
+router.delete("/images/:imageId", admin_1.adminController.deleteImage);
 exports.default = router;

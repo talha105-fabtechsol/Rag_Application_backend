@@ -24,5 +24,9 @@ router.delete("/documents/:documentId", adminController.deleteDocument);
 router.get("/chats", adminController.getChats);
 router.get("/chats/:chatId", adminController.getChat);
 
+// ── Images Management ──
+router.get("/images", adminController.getImages);
+router.delete("/images/:imageId", adminController.deleteImage);
+
 export default router;
 

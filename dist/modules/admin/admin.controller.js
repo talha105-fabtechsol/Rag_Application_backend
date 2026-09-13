@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getChat = exports.getChats = exports.deleteDocument = exports.getDocument = exports.getDocuments = exports.updateUser = exports.getUser = exports.getUsers = exports.getStats = void 0;
+exports.deleteImage = exports.getImages = exports.getChat = exports.getChats = exports.deleteDocument = exports.getDocument = exports.getDocuments = exports.updateUser = exports.getUser = exports.getUsers = exports.getStats = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
 const adminService = __importStar(require("./admin.service"));
@@ -124,4 +124,22 @@ exports.getChat = (0, catchAsync_1.default)(async (req, res) => {
         status: "success",
         data: result,
     });
+});
+exports.getImages = (0, catchAsync_1.default)(async (req, res) => {
+    const { page, limit, search, userId, sortBy } = req.query;
+    const result = await adminService.getAllImages({
+        page: page ? Number(page) : 1,
+        limit: limit ? Number(limit) : 12,
+        search: search,
+        userId: userId,
+        sortBy: sortBy,
+    });
+    res.status(http_status_1.default.OK).send({
+        status: "success",
+        data: result,
+    });
+});
+exports.deleteImage = (0, catchAsync_1.default)(async (req, res) => {
+    await adminService.deleteImageAdmin(req.params["imageId"]);
+    res.status(http_status_1.default.NO_CONTENT).send();
 });
