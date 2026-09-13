@@ -26,6 +26,7 @@ router.post("/search", (0, auth_1.auth)(), (0, validate_1.validate)(rag_1.ragVal
 // ── Image endpoints ────────────────────────────────────────────────
 router.post("/images/generate", (0, auth_1.auth)(), (0, validate_1.validate)(rag_1.ragValidation.generateImage), rag_1.ragController.imageAgentChat);
 router.get("/images", (0, auth_1.auth)(), rag_1.ragController.getImages);
+router.get("/images/public/:imageId", (0, validate_1.validate)(rag_1.ragValidation.getImageById), rag_1.ragController.getPublicImageById);
 router.get("/images/:imageId", (0, auth_1.auth)(), (0, validate_1.validate)(rag_1.ragValidation.getImageById), rag_1.ragController.getImageById);
 router.delete("/images/:imageId", (0, auth_1.auth)(), (0, validate_1.validate)(rag_1.ragValidation.deleteImageById), rag_1.ragController.deleteImage);
 router.post("/images/search", (0, validate_1.validate)(rag_1.ragValidation.searchImages), rag_1.ragController.searchImages);

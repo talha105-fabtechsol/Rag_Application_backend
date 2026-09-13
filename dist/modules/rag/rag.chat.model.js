@@ -38,7 +38,7 @@ const ragChatSchema = new mongoose_1.default.Schema({
     documentId: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: "RagDocument",
-        required: false,
+        required: false, // null for multi-document chats
         index: true,
     },
     documentIds: [
@@ -46,7 +46,7 @@ const ragChatSchema = new mongoose_1.default.Schema({
             type: mongoose_1.default.Schema.Types.ObjectId,
             ref: "RagDocument",
         },
-    ],
+    ], // For multi-document chats
     chatType: {
         type: String,
         enum: ["single-document", "multi-document", "all-documents"],

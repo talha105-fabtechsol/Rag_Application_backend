@@ -44,7 +44,7 @@ export async function removeBackgroundBufferFromUrl(
   imageUrl: string,
 ): Promise<Buffer> {
   // If an external processing service is configured, proxy the request there.
-  const processorUrl = process.env.IMAGE_PROCESSING_URL;
+  const processorUrl = process.env["IMAGE_PROCESSING_URL"];
   if (processorUrl) {
     const url = processorUrl.replace(/\/$/, "") + "/remove-background";
     // Use global fetch (Node 18+). Expect image/png binary in response.

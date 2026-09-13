@@ -15,18 +15,28 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchImages = exports.deleteImage = exports.getImageById = exports.getImages = exports.imageAgentChat = exports.deleteChat = exports.getChat = exports.getAllChats = exports.getChats = exports.deleteDocument = exports.getDocument = exports.getDocuments = exports.search = exports.chat = exports.uploadDocument = void 0;
+exports.searchImages = exports.deleteImage = exports.getPublicImageById = exports.getImageById = exports.getImages = exports.imageAgentChat = exports.deleteChat = exports.getChat = exports.getAllChats = exports.getChats = exports.deleteDocument = exports.getDocument = exports.getDocuments = exports.search = exports.chat = exports.uploadDocument = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../utils/catchAsync"));
 const ragService = __importStar(require("./rag.service"));
@@ -237,6 +247,21 @@ exports.getImageById = (0, catchAsync_1.default)(async (req, res) => {
     res.status(http_status_1.default.OK).send({
         status: "success",
         data: { image },
+    });
+});
+/**
+ * GET /v1/rag/images/public/:imageId
+ * Get a public generated image for SEO / public detail page
+ */
+exports.getPublicImageById = (0, catchAsync_1.default)(async (req, res) => {
+    const imageId = req.params["imageId"];
+    if (!imageId) {
+        throw new ApiError_1.default("Image ID is required", http_status_1.default.BAD_REQUEST);
+    }
+    const result = await ragService.getPublicImageById(imageId);
+    res.status(http_status_1.default.OK).send({
+        status: "success",
+        data: result,
     });
 });
 /**

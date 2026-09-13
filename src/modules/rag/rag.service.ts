@@ -1001,6 +1001,31 @@ export const getImageById = async (userId: string, imageId: string) => {
 };
 
 /**
+ * Get a public image by ID without authentication (for SEO and public gallery)
+ */
+export const getPublicImageById = async (imageId: string) => {
+  const image = await RagImage.findById(imageId).select(
+    "prompt cloudinaryUrl metadata createdAt updatedAt",
+  );
+
+  if (!image) {
+    throw new ApiError("Image not found", httpStatus.NOT_FOUND);
+  }
+
+  const relatedImages = await RagImage.find({
+    _id: { $ne: image._id },
+  })
+    .sort({ createdAt: -1 })
+    .limit(8)
+    .select("prompt cloudinaryUrl createdAt");
+
+  return {
+    image,
+    relatedImages,
+  };
+};
+
+/**
  * Delete a generated image and its Cloudinary file
  */
 export const deleteImage = async (userId: string, imageId: string) => {

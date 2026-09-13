@@ -5,6 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // Canvas/DOM polyfills must load before anything that uses pdf-parse
 require("./utils/canvas-polyfill");
+const dns_1 = __importDefault(require("dns"));
+// Use public DNS to reliably resolve MongoDB Atlas SRV records
+try {
+    dns_1.default.setServers(["8.8.8.8", "1.1.1.1"]);
+}
+catch (e) {
+    // Ignore if restricted in specific environments
+}
 const mongoose_1 = __importDefault(require("mongoose"));
 const app_1 = __importDefault(require("./app"));
 const config_1 = __importDefault(require("./config/config"));

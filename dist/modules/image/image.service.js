@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.bufferToStream = exports.removeBackgroundBufferFromUrl = void 0;
+exports.removeBackgroundBufferFromUrl = removeBackgroundBufferFromUrl;
+exports.bufferToStream = bufferToStream;
 const stream_1 = require("stream");
 const url_1 = require("url");
 const http = require("http");
@@ -38,6 +39,23 @@ async function fetchImageBuffer(imageUrl) {
     });
 }
 async function removeBackgroundBufferFromUrl(imageUrl) {
+    // If an external processing service is configured, proxy the request there.
+    const processorUrl = process.env["IMAGE_PROCESSING_URL"];
+    if (processorUrl) {
+        const url = processorUrl.replace(/\/$/, "") + "/remove-background";
+        // Use global fetch (Node 18+). Expect image/png binary in response.
+        const resp = await fetch(url, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ imageUrl }),
+        });
+        if (!resp.ok) {
+            const txt = await resp.text().catch(() => "");
+            throw new Error(`External processor error: ${resp.status} ${txt}`);
+        }
+        const ab = await resp.arrayBuffer();
+        return Buffer.from(ab);
+    }
     const { buffer: inputBuffer, contentType } = await fetchImageBuffer(imageUrl);
     // create a Blob with the correct mime type so the library can detect the format
     const inferredType = contentType ||
@@ -155,7 +173,6 @@ async function removeBackgroundBufferFromUrl(imageUrl) {
     }
     throw new Error("@imgly/background-removal-node API not recognized. Please check the package docs.");
 }
-exports.removeBackgroundBufferFromUrl = removeBackgroundBufferFromUrl;
 function bufferToStream(buffer) {
     if (!buffer)
         throw new Error("No buffer provided to bufferToStream");
@@ -163,4 +180,3 @@ function bufferToStream(buffer) {
         buffer = Buffer.from(buffer);
     return stream_1.Readable.from(buffer);
 }
-exports.bufferToStream = bufferToStream;

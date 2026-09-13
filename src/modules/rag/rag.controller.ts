@@ -282,6 +282,22 @@ export const getImageById = catchAsync(async (req: Request, res: Response) => {
 });
 
 /**
+ * GET /v1/rag/images/public/:imageId
+ * Get a public generated image for SEO / public detail page
+ */
+export const getPublicImageById = catchAsync(async (req: Request, res: Response) => {
+  const imageId = req.params["imageId"] as string;
+  if (!imageId) {
+    throw new ApiError("Image ID is required", httpStatus.BAD_REQUEST);
+  }
+  const result = await ragService.getPublicImageById(imageId);
+  res.status(httpStatus.OK).send({
+    status: "success",
+    data: result,
+  });
+});
+
+/**
  * DELETE /v1/rag/images/:imageId
  * Delete a generated image
  */

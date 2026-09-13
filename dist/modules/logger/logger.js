@@ -13,7 +13,7 @@ const enumerateErrorFormat = winston_1.default.format((info) => {
 });
 const logger = winston_1.default.createLogger({
     level: config_1.default.env === 'development' ? 'debug' : 'info',
-    format: winston_1.default.format.combine(enumerateErrorFormat(), config_1.default.env === 'development' ? winston_1.default.format.colorize() : winston_1.default.format.uncolorize(), winston_1.default.format.splat(), winston_1.default.format.printf((info) => `${info.level}: ${info.message}`)),
+    format: winston_1.default.format.combine(enumerateErrorFormat(), config_1.default.env === 'development' ? winston_1.default.format.colorize() : winston_1.default.format.uncolorize(), winston_1.default.format.splat(), winston_1.default.format.printf((info) => `${info.level}: ${String(info.message)}`)),
     transports: [
         new winston_1.default.transports.Console({
             stderrLevels: ['error'],

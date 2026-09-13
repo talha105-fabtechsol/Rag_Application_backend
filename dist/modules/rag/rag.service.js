@@ -15,18 +15,28 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchImagesByPrompt = exports.deleteImage = exports.getImageById = exports.getImagesByUserId = exports.createImageFromText = exports.deleteChat = exports.getChatById = exports.getAllUserChats = exports.getChats = exports.deleteDocument = exports.getDocumentById = exports.getUserDocuments = exports.chatWithAllDocuments = exports.chatWithMultipleDocuments = exports.chatWithDocument = exports.searchMultipleDocuments = exports.searchChunksFallback = exports.searchChunks = exports.uploadDocument = void 0;
+exports.searchImagesByPrompt = exports.deleteImage = exports.getPublicImageById = exports.getImageById = exports.getImagesByUserId = exports.createImageFromText = exports.deleteChat = exports.getChatById = exports.getAllUserChats = exports.getChats = exports.deleteDocument = exports.getDocumentById = exports.getUserDocuments = exports.chatWithAllDocuments = exports.chatWithMultipleDocuments = exports.chatWithDocument = exports.searchMultipleDocuments = exports.searchChunksFallback = exports.searchChunks = exports.uploadDocument = void 0;
 // Canvas polyfill must be imported first for PDF parsing
 require("../../utils/canvas-polyfill");
 const mongoose_1 = __importDefault(require("mongoose"));
@@ -270,7 +280,7 @@ const searchChunks = async (documentId, query, limit = 5) => {
                 path: "embedding",
                 queryVector: queryEmbedding,
                 numCandidates: 100,
-                limit: limit * 2,
+                limit: limit * 2, // fetch extra then filter by document
                 filter: {
                     documentId: new mongoose_1.default.Types.ObjectId(documentId),
                 },
@@ -438,7 +448,7 @@ DOCUMENT CONTEXT:
 ${contextText}`;
     const messages = [
         { role: "system", content: systemPrompt },
-        ...previousMessages.slice(-10),
+        ...previousMessages.slice(-10), // keep last 10 messages for context window
         { role: "user", content: message },
     ];
     // 4. Call Mistral chat
@@ -529,7 +539,7 @@ DOCUMENT CONTEXTS:
 ${contextText}`;
     const messages = [
         { role: "system", content: systemPrompt },
-        ...previousMessages.slice(-8),
+        ...previousMessages.slice(-8), // keep last 8 messages for context window
         { role: "user", content: message },
     ];
     // 4. Call Mistral chat
@@ -554,9 +564,9 @@ ${contextText}`;
         const title = message.length > 50 ? message.substring(0, 50) + "..." : message;
         chat = await rag_chat_model_1.default.create({
             userId,
-            documentId: null,
+            documentId: null, // null indicates multi-document chat
             title,
-            documentIds,
+            documentIds, // store which documents this chat involves
             chatType: "multi-document",
             messages: [
                 { role: "user", content: message, timestamp: new Date() },
@@ -806,6 +816,26 @@ const getImageById = async (userId, imageId) => {
     return image;
 };
 exports.getImageById = getImageById;
+/**
+ * Get a public image by ID without authentication (for SEO and public gallery)
+ */
+const getPublicImageById = async (imageId) => {
+    const image = await rag_image_model_1.default.findById(imageId).select("prompt cloudinaryUrl metadata createdAt updatedAt");
+    if (!image) {
+        throw new ApiError_1.default("Image not found", http_status_1.default.NOT_FOUND);
+    }
+    const relatedImages = await rag_image_model_1.default.find({
+        _id: { $ne: image._id },
+    })
+        .sort({ createdAt: -1 })
+        .limit(8)
+        .select("prompt cloudinaryUrl createdAt");
+    return {
+        image,
+        relatedImages,
+    };
+};
+exports.getPublicImageById = getPublicImageById;
 /**
  * Delete a generated image and its Cloudinary file
  */

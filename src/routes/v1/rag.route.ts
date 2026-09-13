@@ -82,6 +82,12 @@ router.post(
 router.get("/images", auth(), ragController.getImages);
 
 router.get(
+  "/images/public/:imageId",
+  validate(ragValidation.getImageById),
+  ragController.getPublicImageById,
+);
+
+router.get(
   "/images/:imageId",
   auth(),
   validate(ragValidation.getImageById),
