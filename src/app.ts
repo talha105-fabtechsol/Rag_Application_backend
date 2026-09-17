@@ -13,8 +13,7 @@ import { jwtStrategy } from './modules/auth';
 import { authLimiter } from './modules/utils';
 import { ApiError, GlobalError } from './modules/errors';
 import routes from './routes/v1';
-
-
+import { seoController } from './modules/seo';
 
 const app: Express = express();
 
@@ -23,20 +22,6 @@ if (config.env !== 'test') {
   app.use(morgan.errorHandler);
 }
 app.set('trust proxy', 1);
-
-
-// app.use(
-//   session({
-//     secret:  'your-secret-key',
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//       secure: false, // true if using HTTPS
-//       maxAge: 1000 * 60 * 60 * 24 // 1 day
-//     },
-
-//   })
-// );
 
 // set security HTTP headers
 app.use(helmet());
@@ -65,17 +50,13 @@ app.use((req, res, next) => {
 app.use(xss());
 app.use(ExpressMongoSanitize());
 
-// gzip compression
-// app.use(compression());
-
 // jwt authentication
 app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
-app.use(passport.initialize());
 
-
-// loading authentication strategies(Google, Facebook)
-
+// Root SEO endpoints for crawlers and Nginx pass-through
+app.get("/sitemap.xml", seoController.getSitemapXml);
+app.get("/robots.txt", seoController.getRobotsTxt);
 
 // limit repeated failed requests to auth endpoints
 if (config.env === 'production') {
@@ -85,11 +66,10 @@ if (config.env === 'production') {
 // v1 api routes
 app.use('/v1', routes);
 
-
-
 app.get("/api/health", (_, res) => {
   res.send({ status: "healthy" });
 });
+
 // send back a 404 error for any unknown api request
 app.use((_req, _res, next) => {
   next(new ApiError('Not found', httpStatus.NOT_FOUND));
@@ -97,10 +77,11 @@ app.use((_req, _res, next) => {
 
 // convert error to ApiError, if needed
 app.use(GlobalError);
- app.get('/oauth2callback', (req, res) => {
+
+app.get('/oauth2callback', (req, res) => {
   console.log('req.query', req.query);
   res.send('OAuth2 callback received');
- });
-
+});
 
 export default app;
+

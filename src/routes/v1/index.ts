@@ -5,6 +5,8 @@ import ragRoute from "./rag.route";
 import imageRoute from "./image.route";
 import adminRoute from "./admin.route";
 import blogRoute from "./blog.route";
+import contactRoute from "./contact.route";
+import seoRoute from "./seo.route";
 
 const router = express.Router();
 interface IRoute {
@@ -37,6 +39,14 @@ const defaultIRoute: IRoute[] = [
     path: "/blogs",
     route: blogRoute,
   },
+  {
+    path: "/contact",
+    route: contactRoute,
+  },
+  {
+    path: "/seo",
+    route: seoRoute,
+  },
 ];
 
 // Globally Routes
@@ -45,3 +55,4 @@ defaultIRoute.forEach((route) => {
 });
 
 export default router;
+

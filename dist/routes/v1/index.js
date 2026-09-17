@@ -10,6 +10,8 @@ const rag_route_1 = __importDefault(require("./rag.route"));
 const image_route_1 = __importDefault(require("./image.route"));
 const admin_route_1 = __importDefault(require("./admin.route"));
 const blog_route_1 = __importDefault(require("./blog.route"));
+const contact_route_1 = __importDefault(require("./contact.route"));
+const seo_route_1 = __importDefault(require("./seo.route"));
 const router = express_1.default.Router();
 const defaultIRoute = [
     {
@@ -35,6 +37,14 @@ const defaultIRoute = [
     {
         path: "/blogs",
         route: blog_route_1.default,
+    },
+    {
+        path: "/contact",
+        route: contact_route_1.default,
+    },
+    {
+        path: "/seo",
+        route: seo_route_1.default,
     },
 ];
 // Globally Routes

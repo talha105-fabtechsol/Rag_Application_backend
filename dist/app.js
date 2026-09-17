@@ -18,23 +18,13 @@ const auth_1 = require("./modules/auth");
 const utils_1 = require("./modules/utils");
 const errors_1 = require("./modules/errors");
 const v1_1 = __importDefault(require("./routes/v1"));
+const seo_1 = require("./modules/seo");
 const app = (0, express_1.default)();
 if (config_1.default.env !== 'test') {
     app.use(logger_1.morgan.successHandler);
     app.use(logger_1.morgan.errorHandler);
 }
 app.set('trust proxy', 1);
-// app.use(
-//   session({
-//     secret:  'your-secret-key',
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//       secure: false, // true if using HTTPS
-//       maxAge: 1000 * 60 * 60 * 24 // 1 day
-//     },
-//   })
-// );
 // set security HTTP headers
 app.use((0, helmet_1.default)());
 // enable cors
@@ -56,13 +46,12 @@ app.use((req, res, next) => {
 // sanitize request data
 app.use((0, xss_clean_1.default)());
 app.use((0, express_mongo_sanitize_1.default)());
-// gzip compression
-// app.use(compression());
 // jwt authentication
 app.use(passport_1.default.initialize());
 passport_1.default.use('jwt', auth_1.jwtStrategy);
-app.use(passport_1.default.initialize());
-// loading authentication strategies(Google, Facebook)
+// Root SEO endpoints for crawlers and Nginx pass-through
+app.get("/sitemap.xml", seo_1.seoController.getSitemapXml);
+app.get("/robots.txt", seo_1.seoController.getRobotsTxt);
 // limit repeated failed requests to auth endpoints
 if (config_1.default.env === 'production') {
     app.use('/v1/auth', utils_1.authLimiter);
