@@ -15,6 +15,7 @@ function createPromptSlug(prompt: string, id: string): string {
   return cleanPrompt ? `${cleanPrompt}-${id}` : id;
 }
 
+
 function escapeXml(unsafe: string): string {
   return unsafe.replace(/[<>&'"]/g, (c) => {
     switch (c) {
@@ -124,7 +125,7 @@ Disallow: /v1/
 
 # Sitemap location
 Sitemap: ${baseUrl}/sitemap.xml
-Host: ${baseUrl}
+
 `;
 };
 
